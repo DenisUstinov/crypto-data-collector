@@ -56,7 +56,3 @@ class SQLiteDB:
         async with aiosqlite.connect(self.db_name) as conn:
             await conn.execute(query, ticker_data)
             await conn.commit()
-
-    async def setup_database(self):
-        await self.create_trades_table()
-        await self.create_ticker_table()
