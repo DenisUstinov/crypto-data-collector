@@ -53,6 +53,7 @@ class SQLiteDB:
         await self.execute_query(query, ())
 
     async def insert_trade(self, trade_data):
+        print(trade_data)
         query = f"""
             INSERT INTO trades_{self.pair} (trade_id, type, price, quantity, amount, date)
             VALUES (:trade_id, :type, :price, :quantity, :amount, :date)

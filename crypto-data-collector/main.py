@@ -5,34 +5,36 @@ from model import SQLiteDB
 
 async def process_api_response(data: dict):
     event = data.get('event')
-    if event == 'update' or event == 'snapshot':
-        topic = data.get('topic')
-        if topic.startswith('spot/trades:'):
-            await db.create_trades_table()
-            await db.insert_trade(data['data'])
-        elif topic.startswith('spot/ticker:'):
-            await db.create_tickers_table()
-            await db.insert_ticker(data['data'])
-        elif topic.startswith('spot/order_book_snapshots:'):
-            await db.create_orders_table()
-            ask_data = {
-                'price': data['data']['ask'][0][0],
-                'quantity': data['data']['ask'][0][1],
-                'amount': data['data']['ask'][0][2],
-                'type': 'ask',
-                'date': data['ts']
-            }
-            print(ask_data)
-            await db.insert_order(ask_data)
-            bid_data = {
-                'price': data['data']['bid'][0][0],
-                'quantity': data['data']['bid'][0][1],
-                'amount': data['data']['bid'][0][2],
-                'type': 'bid',
-                'date': data['ts']
-            }
-            print(bid_data)
-            await db.insert_order(bid_data)
+    if event not in ['update', 'snapshot']:
+        return
+
+    topic = data.get('topic')
+    if topic.startswith('spot/trades:'):
+        await db.create_trades_table()
+        await db.insert_trade(data['data'][0])
+    elif topic.startswith('spot/ticker:'):
+        await db.create_tickers_table()
+        await db.insert_ticker(data['data'])
+    elif topic.startswith('spot/order_book_snapshots:'):
+        await db.create_orders_table()
+        ask_data = {
+            'price': data['data']['ask'][0][0],
+            'quantity': data['data']['ask'][0][1],
+            'amount': data['data']['ask'][0][2],
+            'type': 'ask',
+            'date': data['ts']
+        }
+        # print(ask_data)
+        await db.insert_order(ask_data)
+        bid_data = {
+            'price': data['data']['bid'][0][0],
+            'quantity': data['data']['bid'][0][1],
+            'amount': data['data']['bid'][0][2],
+            'type': 'bid',
+            'date': data['ts']
+        }
+        # print(bid_data)
+        await db.insert_order(bid_data)
 
 
 async def main(pair):
@@ -65,6 +67,9 @@ async def main(pair):
 
 
 if __name__ == "__main__":
-    currency_pair = "BTC_USD"
-    db = SQLiteDB(currency_pair)
-    asyncio.run(main(currency_pair))
+    try:
+        currency_pair = "BTC_USD"
+        db = SQLiteDB(currency_pair)
+        asyncio.run(main(currency_pair))
+    except Exception as e:
+        print(f"An error occurred: {e}")
