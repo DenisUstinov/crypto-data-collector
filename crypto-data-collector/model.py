@@ -77,22 +77,25 @@ class SQLiteDB:
         """
         await self.execute_query(query, order_data)
 
-    async def get_trades_by_timeframe(self, timeframe):
+    async def get_time_range(timeframe):
         end_time = int(time.time())
         start_time = end_time - (timeframe * 60)
+        return start_time, end_time
+
+    async def get_trades_by_timeframe(self, timeframe):
+        start_time, end_time = await self.get_time_range(timeframe)
         query = f"SELECT * FROM trades_{self.pair} WHERE date BETWEEN ? AND ?"
         rows = await self.execute_query(query, (start_time, end_time))
         return rows
 
     async def get_tickers_by_timeframe(self, timeframe):
-        end_time = int(time.time())
-        start_time = end_time - (timeframe * 60)
+        start_time, end_time = await self.get_time_range(timeframe)
         query = f"SELECT * FROM tickers_{self.pair} WHERE updated BETWEEN ? AND ?"
         rows = await self.execute_query(query, (start_time, end_time))
         return rows
 
     async def get_orders_by_timeframe(self, timeframe, type_order):
-        end_time = int(time.time())
-        start_time = end_time - (timeframe * 60)
+        start_time, end_time = await self.get_time_range(timeframe)
         query = f"SELECT * FROM orders_{self.pair} WHERE date BETWEEN ? AND ? AND type=?"
         rows = await self.execute_query(query, (start_time, end_time, type_order))
+        return rows
