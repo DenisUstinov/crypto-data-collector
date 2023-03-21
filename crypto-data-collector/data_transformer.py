@@ -3,7 +3,7 @@ import statistics
 import time
 
 
-class DataAnalyzer:
+class DataTransformer:
     def __init__(self):
         pass
 
