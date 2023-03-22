@@ -77,7 +77,7 @@ class SQLiteDB:
         """
         await self.execute_query(query, order_data)
 
-    async def get_time_range(timeframe):
+    async def get_time_range(self, timeframe):
         end_time = int(time.time())
         start_time = end_time - (timeframe * 60)
         return start_time, end_time
